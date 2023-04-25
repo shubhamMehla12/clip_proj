@@ -17,9 +17,15 @@ import pickle
 from transformers import VisionEncoderDecoderModel, ViTImageProcessor, AutoTokenizer
 from PIL import Image
 from flask import Flask, request, jsonify
+from flask_caching import Cache 
+
+cache = Cache()
 
 app = Flask(__name__)
+app.config['CACHE_TYPE'] = 'simple'
 
+app.config['CACHE_TYPE'] = 'simple'
+cache.init_app(app)
 
 model_vit_path = "../models/vit" 
 model_vit = VisionEncoderDecoderModel.from_pretrained(model_vit_path)
@@ -403,6 +409,7 @@ def delete_folder(path):
     except:
         pass
 @app.route('/predict', methods=['POST'])
+@cache.cached(timeout=60)
 def predict():
     files = request.files.getlist('file')
 
