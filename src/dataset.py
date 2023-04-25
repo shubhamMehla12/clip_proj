@@ -4,6 +4,16 @@ import config as CFG
 import cv2
 
 def get_transforms(mode="train"):
+    """
+    Returns a set of image resize and normalization transforms using the
+    Albumentations library.
+
+    Parameters:
+    mode (str): A string indicating the mode of the transformation. Default value is "train".
+
+    Returns:
+    albumentations.Compose: A set of image resize and normalization transforms.
+    """
     if mode == "train":
         return A.Compose(
             [

@@ -27,19 +27,25 @@ class TextEncoder(nn.Module):
     def __init__(self, model_name=CFG.text_encoder_model, pretrained=CFG.pretrained, trainable=CFG.trainable):
         super().__init__()
         if pretrained:
+            # if using a pre-trained model, load the pre-trained model
             self.model = DistilBertModel.from_pretrained(model_name)
         else:
+            # otherwise, create a new model with default configuration
             self.model = DistilBertModel(config=DistilBertConfig())
             
         for p in self.model.parameters():
+            # set requires_grad attribute to trainable flag
             p.requires_grad = trainable
 
         # we are using the CLS token hidden representation as the sentence's embedding
         self.target_token_idx = 0
 
     def forward(self, input_ids, attention_mask):
+        # feed the input_ids and attention_mask to the model
         output = self.model(input_ids=input_ids, attention_mask=attention_mask)
+        # extract the last hidden state of the model
         last_hidden_state = output.last_hidden_state
+        # get the hidden representation of the target token ([CLS])
         return last_hidden_state[:, self.target_token_idx, :]
 
 class ProjectionHead(nn.Module):
@@ -50,10 +56,15 @@ class ProjectionHead(nn.Module):
         dropout=CFG.dropout
     ):
         super().__init__()
+        # Define the projection layer with input and output dimensions
         self.projection = nn.Linear(embedding_dim, projection_dim)
+        # Define the GELU activation function
         self.gelu = nn.GELU()
+        # Define a fully connected layer with the same input and output dimensions for residual connection
         self.fc = nn.Linear(projection_dim, projection_dim)
+        # Define the dropout layer
         self.dropout = nn.Dropout(dropout)
+        # Define the layer normalization layer
         self.layer_norm = nn.LayerNorm(projection_dim)
     
     def forward(self, x):
