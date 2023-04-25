@@ -161,7 +161,7 @@ def predict():
                 file_name = name,
                 n=5)
         output[name[:-4]] = {"caption":queries[idx],"matches":matches}
-    return jsonify({"output":output})
+    return jsonify({"image_path":CFG.image_path,"output":output})
 
     
 if __name__ == '__main__':
