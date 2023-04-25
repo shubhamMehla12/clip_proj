@@ -2,7 +2,8 @@ import os
 import cv2
 import numpy as np
 import pandas as pd
-
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 import torch
 import torch.nn.functional as F
 from transformers import DistilBertTokenizer
@@ -66,14 +67,24 @@ def make_train_valid_dfs():
     valid_dataframe = dataframe[dataframe["id"].isin(valid_ids)].reset_index(drop=True)
     return train_dataframe, valid_dataframe
 
-def get_captions(names):
+def get_captions(query,names):
     captions = {}
     for name in names:
         df = pd.read_csv("../flickr30k_images/captions.csv")
         df = df[df['image']==name].reset_index(drop=True)
-        caption = df['caption'].iloc[0]
-        captions[name] = caption
+        captions_lst = [df['caption'].iloc[idx] for idx in range(len(df))]
+        # Initialize CountVectorizer
+        vectorizer = CountVectorizer().fit_transform([query] + captions_lst)
+
+        # Calculate cosine similarity
+        cosine_similarities = cosine_similarity(vectorizer[0], vectorizer[1:]).flatten()
+
+        # Get the most similar text
+        most_similar_text = captions_lst[cosine_similarities.argmax()]
+        
+        captions[name] = most_similar_text
     return captions
+
 
 def find_matches(model, image_embeddings, query, image_filenames,file_name, n=9):
     make_dir(f"outputs/{file_name}")
@@ -97,7 +108,7 @@ def find_matches(model, image_embeddings, query, image_filenames,file_name, n=9)
     values, indices = torch.topk(dot_similarity.squeeze(0), n * 5)
     matches = [image_filenames[idx] for idx in indices[::5]]
     
-    captions = get_captions(matches)
+    captions = get_captions(query,matches)
     for match in matches:
         image = cv2.imread(f"{CFG.image_path}/{match}")
         cv2.imwrite(f"../outputs/{file_name}/{match}",image)

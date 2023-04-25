@@ -8,6 +8,7 @@ opencv-python
 pandas
 pickle5
 pillow
+scikit-learn
 timm
 torch==1.11.0 -f https://download.pytorch.org/whl/torch_stable.html
 transformers==4.25.1
