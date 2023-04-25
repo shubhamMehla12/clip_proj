@@ -29,6 +29,10 @@ Downlaod dataset named flickr30k_images from the kaggle.
 - [x] transformers==4.25.1
 - [x] tqdm
 
+- after cloning  you just have to download two models named , clip_bert_vip.pt , pytorch_model.bin from gDrive and add them to the folder named “models” .
+Gdrive link : https://drive.google.com/drive/folders/1u2LmgzCWTIcdMW6q_XiE4cn-w7_wFsQB?usp=share_link
+
+
 ### commands 
 ```sh
 $ git clone https://github.com/shubhamMehla12/clip_proj.git  
